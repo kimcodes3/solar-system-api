@@ -5,7 +5,7 @@ class Planet:
     def __init__(self, id, name, description, position): 
         self.id = id
         self.name = name
-        self.descrption = description 
+        self.description = description 
         self.position = position 
 
 earth = Planet(6, "earth", "only planet known with liquid water", 3)
