@@ -1,48 +1,44 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
+from .models.planet import Planet
+from app import db
 
 planet_bp = Blueprint("planet", __name__, url_prefix="/planet")
-
-class Planet: 
-
-    def __init__(self, id, name, description, position): 
-        self.id = id
-        self.name = name
-        self.description = description 
-        self.position = position 
-
-earth = Planet(6, "earth", "only planet known with liquid water", 3)
-mars = Planet(67, "mars", "dusty cold desert world", 4)
-venus = Planet(89, "venus", "hot girl planet", 2)
-
-planet_list = [earth, mars, venus]
 
 @planet_bp.route("", methods=["GET"])
 def get_planets():
     response = []
-    for planet in planet_list:
-        planet_dict = {
-            "id": planet.id,
-            "name": planet.name,
-            "description": planet.description,
-            "position": planet.position,
-        }
-        response.append(planet_dict)
+    all_planets = Planet.query.all()
+    for planet in all_planets:
+        response.append(planet.get_dict())
     return jsonify(response), 200
 
-@planet_bp.route("/<id>", methods=["GET"])
-def get_one_planet(id):
+@planet_bp.route("", methods=["POST"])
+def add_one_planet():
+    request_body = request.get_json()
+    new_planet = Planet(
+        name = request_body["name"], 
+        description = request_body["description"],
+        position = request_body["position"],
+        )
+    db.session.add(new_planet)
+    db.session.commit()
 
-    try:
-        planet_id = int(id)
-    except ValueError:
-        return {"message": f"invalid id: {id}"}, 400
+    return {"id": new_planet.id}, 201
+
+# @planet_bp.route("/<id>", methods=["GET"])
+# def get_one_planet(id):
+
+#     try:
+#         planet_id = int(id)
+#     except ValueError:
+#         return {"message": f"invalid id: {id}"}, 400
     
-    for planet in planet_list:
-        if planet.id == planet_id:
-            return jsonify({
-            "id": planet.id,
-            "name": planet.name,
-            "description": planet.description,
-            "position": planet.position,
-        }), 200
-    return {"message": f"id {planet_id} not found"}, 404
+#     for planet in planet_list:
+#         if planet.id == planet_id:
+#             return jsonify({
+#             "id": planet.id,
+#             "name": planet.name,
+#             "description": planet.description,
+#             "position": planet.position,
+#         }), 200
+#     return {"message": f"id {planet_id} not found"}, 404
