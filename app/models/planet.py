@@ -6,7 +6,7 @@ class Planet(db.Model):
     description = db.Column(db.String)
     position = db.Column(db.Integer)
 
-    def to_dict(self):
+    def get_dict(self):
         return {
             "id": self.id,
             "name": self.name,
