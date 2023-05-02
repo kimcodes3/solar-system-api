@@ -7,7 +7,13 @@ planet_bp = Blueprint("planet", __name__, url_prefix="/planet")
 @planet_bp.route("", methods=["GET"])
 def get_planets():
     response = []
-    all_planets = Planet.query.all()
+    name_query = request.args.get("name")
+
+    if name_query is None:
+        all_planets = Planet.query.all()
+    else:
+        all_planets = Planet.query.filter_by(name=name_query)
+        
     for planet in all_planets:
         response.append(planet.get_dict())
     return jsonify(response), 200
